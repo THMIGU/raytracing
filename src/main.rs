@@ -16,7 +16,14 @@ const VIEWPORT_WIDTH: u32 = (VIEWPORT_HEIGHT as f32 * IMAGE_ASPECT) as u32;
 const FOCAL_LENGTH: u32 = 1;
 
 fn ray_color(ray: &Ray) -> Color {
-	Color::ZERO
+	let unit_dir = ray.dir.normalize();
+	let a = 0.5 * (unit_dir.y + 1_f32);
+
+	let white = Color::ONE;
+	let blue = Color::new(0.5, 0.7, 1_f32);
+	let color = white.lerp(blue, a);
+
+	color
 }
 
 fn main() {
