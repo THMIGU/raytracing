@@ -19,16 +19,16 @@ fn hit_sphere(center: Vec3, radius: f32, ray: &Ray) -> f32 {
 	let oc = center - ray.origin;
 
 	let a = ray.dir.dot(ray.dir);
-	let b = -2_f32 * ray.dir.dot(oc);
+	let h = ray.dir.dot(oc);
 	let c = oc.dot(oc) - radius.powi(2);
 
-	let discriminant = b.powi(2) - 4_f32 * a * c;
+	let discriminant = h.powi(2) - a * c;
 
 	if discriminant < 0_f32 {
 		return -1_f32;
 	}
 
-	(-b - discriminant.sqrt()) / (2_f32 * a)
+	(h - discriminant.sqrt()) / a
 }
 
 fn ray_color(ray: &Ray) -> Color {
