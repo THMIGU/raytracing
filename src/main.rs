@@ -1,4 +1,5 @@
 mod color;
+mod ray;
 
 use crate::color::Color;
 
