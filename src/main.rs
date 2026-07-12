@@ -10,12 +10,36 @@ const IMAGE_WIDTH: u32 = 400;
 const IMAGE_HEIGHT: u32 = (IMAGE_WIDTH as f32 / ASPECT_RATIO) as u32;
 
 const IMAGE_ASPECT: f32 = IMAGE_WIDTH as f32 / IMAGE_HEIGHT as f32;
-const VIEWPORT_HEIGHT: u32 = 2;
-const VIEWPORT_WIDTH: u32 = (VIEWPORT_HEIGHT as f32 * IMAGE_ASPECT) as u32;
+const VIEWPORT_HEIGHT: f32 = 2_f32;
+const VIEWPORT_WIDTH: f32 = VIEWPORT_HEIGHT as f32 * IMAGE_ASPECT;
 
 const FOCAL_LENGTH: u32 = 1;
 
+fn hit_sphere(center: Vec3, radius: f32, ray: &Ray) -> f32 {
+	let oc = center - ray.origin;
+
+	let a = ray.dir.dot(ray.dir);
+	let b = -2_f32 * ray.dir.dot(oc);
+	let c = oc.dot(oc) - radius.powi(2);
+
+	let discriminant = b.powi(2) - 4_f32 * a * c;
+
+	if discriminant < 0_f32 {
+		return -1_f32;
+	}
+
+	(-b - discriminant.sqrt()) / (2_f32 * a)
+}
+
 fn ray_color(ray: &Ray) -> Color {
+	let sphere_center = vec3(0_f32, 0_f32, -1_f32);
+
+	let t = hit_sphere(sphere_center, 0.5, ray);
+	if t > 0_f32 {
+		let n = (ray.at(t) - sphere_center).normalize();
+		return 0.5 * (n + Vec3::ONE);
+	}
+
 	let unit_dir = ray.dir.normalize();
 	let a = 0.5 * (unit_dir.y + 1_f32);
 
@@ -31,8 +55,8 @@ fn main() {
 	let camera_center = Vec3::ZERO;
 
 	// Viewport edges
-	let viewport_u = vec3(VIEWPORT_WIDTH as f32, 0_f32, 0_f32);
-	let viewport_v = vec3(0_f32, -(VIEWPORT_HEIGHT as f32), 0_f32);
+	let viewport_u = vec3(VIEWPORT_WIDTH, 0_f32, 0_f32);
+	let viewport_v = vec3(0_f32, -VIEWPORT_HEIGHT, 0_f32);
 
 	// Pixel deltas
 	let pdx_u = viewport_u / IMAGE_WIDTH as f32;
