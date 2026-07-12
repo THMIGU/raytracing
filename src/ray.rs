@@ -1,6 +1,6 @@
 use glam::Vec3;
 
-struct Ray {
+pub struct Ray {
 	pub origin: Vec3,
 	pub dir: Vec3,
 }
