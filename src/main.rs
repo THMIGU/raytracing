@@ -1,5 +1,7 @@
 mod color;
+mod hittable;
 mod ray;
+mod sphere;
 
 use glam::{Vec3, vec3};
 
