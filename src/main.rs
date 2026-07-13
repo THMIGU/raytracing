@@ -7,7 +7,14 @@ mod utils;
 
 use glam::{Vec3, vec3};
 
-use crate::{color::Color, ray::Ray};
+use crate::{
+	color::Color,
+	hittable::{HitRecord, Hittable},
+	hittable_list::HittableList,
+	ray::Ray,
+	sphere::Sphere,
+	utils::INFINITY,
+};
 
 const ASPECT_RATIO: f32 = 16_f32 / 9_f32;
 const IMAGE_WIDTH: u32 = 400;
@@ -19,29 +26,10 @@ const VIEWPORT_WIDTH: f32 = VIEWPORT_HEIGHT as f32 * IMAGE_ASPECT;
 
 const FOCAL_LENGTH: u32 = 1;
 
-fn hit_sphere(center: Vec3, radius: f32, ray: &Ray) -> f32 {
-	let oc = center - ray.origin;
-
-	let a = ray.dir.dot(ray.dir);
-	let h = ray.dir.dot(oc);
-	let c = oc.dot(oc) - radius.powi(2);
-
-	let discriminant = h.powi(2) - a * c;
-
-	if discriminant < 0_f32 {
-		return -1_f32;
-	}
-
-	(h - discriminant.sqrt()) / a
-}
-
-fn ray_color(ray: &Ray) -> Color {
-	let sphere_center = vec3(0_f32, 0_f32, -1_f32);
-
-	let t = hit_sphere(sphere_center, 0.5, ray);
-	if t > 0_f32 {
-		let n = (ray.at(t) - sphere_center).normalize();
-		return 0.5 * (n + Vec3::ONE);
+fn ray_color(ray: &Ray, world: &HittableList) -> Color {
+	let mut rec = HitRecord::new();
+	if world.hit(ray, 0_f32, INFINITY, &mut rec) {
+		return 0.5 * (rec.normal + Color::ONE);
 	}
 
 	let unit_dir = ray.dir.normalize();
@@ -55,6 +43,11 @@ fn ray_color(ray: &Ray) -> Color {
 }
 
 fn main() {
+	// World
+	let mut world = HittableList::new();
+	world.add(Sphere::new(vec3(0_f32, 0_f32, -1_f32), 0.5));
+	world.add(Sphere::new(vec3(0_f32, -100.5, -1_f32), 100_f32));
+
 	// Camera
 	let camera_center = Vec3::ZERO;
 
@@ -84,7 +77,7 @@ fn main() {
 
 			let r = Ray::new(camera_center, ray_dir);
 
-			let color = ray_color(&r);
+			let color = ray_color(&r, &world);
 			color::write_color(color);
 		}
 	}
