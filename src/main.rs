@@ -1,3 +1,4 @@
+mod camera;
 mod color;
 mod hittable;
 mod hittable_list;
@@ -6,83 +7,16 @@ mod ray;
 mod sphere;
 mod utils;
 
-use glam::{Vec3, vec3};
+use glam::vec3;
 
-use crate::{
-	color::Color,
-	hittable::{HitRecord, Hittable},
-	hittable_list::HittableList,
-	interval::Interval,
-	ray::Ray,
-	sphere::Sphere,
-	utils::INFINITY,
-};
-
-const ASPECT_RATIO: f32 = 16_f32 / 9_f32;
-const IMAGE_WIDTH: u32 = 400;
-const IMAGE_HEIGHT: u32 = (IMAGE_WIDTH as f32 / ASPECT_RATIO) as u32;
-
-const IMAGE_ASPECT: f32 = IMAGE_WIDTH as f32 / IMAGE_HEIGHT as f32;
-const VIEWPORT_HEIGHT: f32 = 2_f32;
-const VIEWPORT_WIDTH: f32 = VIEWPORT_HEIGHT as f32 * IMAGE_ASPECT;
-
-const FOCAL_LENGTH: u32 = 1;
-
-fn ray_color(ray: &Ray, world: &HittableList) -> Color {
-	let mut rec = HitRecord::new();
-	if world.hit(ray, Interval::new(0_f32, INFINITY), &mut rec) {
-		return 0.5 * (rec.normal + Color::ONE);
-	}
-
-	let unit_dir = ray.dir.normalize();
-	let a = 0.5 * (unit_dir.y + 1_f32);
-
-	let white = Color::ONE;
-	let blue = Color::new(0.5, 0.7, 1_f32);
-	let color = white.lerp(blue, a);
-
-	color
-}
+use crate::{camera::Camera, hittable_list::HittableList, sphere::Sphere};
 
 fn main() {
-	// World
 	let mut world = HittableList::new();
 	world.add(Sphere::new(vec3(0_f32, 0_f32, -1_f32), 0.5));
 	world.add(Sphere::new(vec3(0_f32, -100.5, -1_f32), 100_f32));
 
-	// Camera
-	let camera_center = Vec3::ZERO;
+	let cam = Camera::new(16_f32 / 9_f32, 400);
 
-	// Viewport edges
-	let viewport_u = vec3(VIEWPORT_WIDTH, 0_f32, 0_f32);
-	let viewport_v = vec3(0_f32, -VIEWPORT_HEIGHT, 0_f32);
-
-	// Pixel deltas
-	let pdx_u = viewport_u / IMAGE_WIDTH as f32;
-	let pdx_v = viewport_v / IMAGE_HEIGHT as f32;
-
-	// Origin calculation
-	let viewport_nw = camera_center
-		- vec3(0_f32, 0_f32, FOCAL_LENGTH as f32)
-		- viewport_u / 2_f32
-		- viewport_v / 2_f32;
-	let origin = viewport_nw + 0.5 * (pdx_u + pdx_v);
-
-	// Render
-	println!("P3\n{} {}\n255", IMAGE_WIDTH, IMAGE_HEIGHT);
-	for j in 0..IMAGE_HEIGHT {
-		eprint!("\rScanlines remaining: {} \r", IMAGE_HEIGHT - j);
-
-		for i in 0..IMAGE_WIDTH {
-			let pixel_center = origin + (i as f32 * pdx_u) + (j as f32 * pdx_v);
-			let ray_dir = pixel_center - camera_center;
-
-			let r = Ray::new(camera_center, ray_dir);
-
-			let color = ray_color(&r, &world);
-			color::write_color(color);
-		}
-	}
-
-	eprintln!("\rDone.                     ");
+	cam.render(&world);
 }
