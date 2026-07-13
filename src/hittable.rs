@@ -1,6 +1,6 @@
 use glam::Vec3;
 
-use crate::ray::Ray;
+use crate::{interval::Interval, ray::Ray};
 
 pub struct HitRecord {
 	pub p: Vec3,
@@ -37,5 +37,5 @@ impl HitRecord {
 }
 
 pub trait Hittable {
-	fn hit(&self, ray: &Ray, t_min: f32, t_max: f32, rec: &mut HitRecord) -> bool;
+	fn hit(&self, ray: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool;
 }

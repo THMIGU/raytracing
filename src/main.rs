@@ -1,6 +1,7 @@
 mod color;
 mod hittable;
 mod hittable_list;
+mod interval;
 mod ray;
 mod sphere;
 mod utils;
@@ -11,6 +12,7 @@ use crate::{
 	color::Color,
 	hittable::{HitRecord, Hittable},
 	hittable_list::HittableList,
+	interval::Interval,
 	ray::Ray,
 	sphere::Sphere,
 	utils::INFINITY,
@@ -28,7 +30,7 @@ const FOCAL_LENGTH: u32 = 1;
 
 fn ray_color(ray: &Ray, world: &HittableList) -> Color {
 	let mut rec = HitRecord::new();
-	if world.hit(ray, 0_f32, INFINITY, &mut rec) {
+	if world.hit(ray, Interval::new(0_f32, INFINITY), &mut rec) {
 		return 0.5 * (rec.normal + Color::ONE);
 	}
 
