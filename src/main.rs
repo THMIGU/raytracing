@@ -3,6 +3,7 @@ mod hittable;
 mod hittable_list;
 mod ray;
 mod sphere;
+mod utils;
 
 use glam::{Vec3, vec3};
 
