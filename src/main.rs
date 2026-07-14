@@ -16,7 +16,7 @@ fn main() {
 	world.add(Sphere::new(vec3(0_f32, 0_f32, -1_f32), 0.5));
 	world.add(Sphere::new(vec3(0_f32, -100.5, -1_f32), 100_f32));
 
-	let cam = Camera::new(16_f32 / 9_f32, 400);
+	let cam = Camera::new(16_f32 / 9_f32, 1280, 32);
 
 	cam.render(&world);
 }

@@ -1,16 +1,17 @@
-use glam::{Vec3, vec3};
+use glam::{Vec2, Vec3, vec2, vec3};
 
 use crate::{
 	color::{self, Color},
 	hittable::{HitRecord, Hittable},
 	interval::Interval,
 	ray::Ray,
-	utils::INFINITY,
+	utils::{INFINITY, random_float},
 };
 
 pub struct Camera {
 	pub aspect_ratio: f32,
 	pub image_width: u32,
+	pub samples_per_pixel: u32,
 	image_height: u32,
 	center: Vec3,
 	p00_loc: Vec3,
@@ -35,7 +36,23 @@ impl Camera {
 		color
 	}
 
-	pub fn new(aspect_ratio: f32, image_width: u32) -> Self {
+	fn sample_square() -> Vec2 {
+		vec2(random_float() - 0.5, random_float() - 0.5)
+	}
+
+	fn get_ray(&self, i: u32, j: u32) -> Ray {
+		let offset = Self::sample_square();
+		let pixel_sample = self.p00_loc
+			+ ((i as f32 + offset.x) * self.pxd_u)
+			+ ((j as f32 + offset.y) * self.pxd_v);
+
+		let ray_origin = self.center;
+		let ray_dir = pixel_sample - ray_origin;
+
+		Ray::new(ray_origin, ray_dir)
+	}
+
+	pub fn new(aspect_ratio: f32, image_width: u32, samples_per_pixel: u32) -> Self {
 		let mut image_height = (image_width as f32 / aspect_ratio) as u32;
 		if image_height < 1 {
 			image_height = 1;
@@ -63,6 +80,7 @@ impl Camera {
 		Self {
 			aspect_ratio,
 			image_width,
+			samples_per_pixel,
 			image_height,
 			center: camera_center,
 			p00_loc,
@@ -77,13 +95,14 @@ impl Camera {
 			eprint!("\rScanlines remaining: {} \r", self.image_height - j);
 
 			for i in 0..self.image_width {
-				let pixel_center = self.p00_loc + (i as f32 * self.pxd_u) + (j as f32 * self.pxd_v);
-				let ray_dir = pixel_center - self.center;
+				let mut color = Color::ZERO;
 
-				let ray = Ray::new(self.center, ray_dir);
+				for _ in 0..self.samples_per_pixel {
+					let ray = self.get_ray(i, j);
+					color += Self::ray_color(&ray, world);
+				}
 
-				let color = Self::ray_color(&ray, world);
-				color::write_color(color);
+				color::write_color(color / self.samples_per_pixel as f32);
 			}
 		}
 
