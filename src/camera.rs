@@ -5,7 +5,7 @@ use crate::{
 	hittable::{HitRecord, Hittable},
 	interval::Interval,
 	ray::Ray,
-	utils::{INFINITY, random_float},
+	utils::{INFINITY, random_float, random_vec3_hemisphere},
 };
 
 pub struct Camera {
@@ -23,7 +23,8 @@ impl Camera {
 	fn ray_color(ray: &Ray, world: &impl Hittable) -> Color {
 		let mut rec = HitRecord::new();
 		if world.hit(ray, Interval::new(0_f32, INFINITY), &mut rec) {
-			return 0.5 * (rec.normal + Color::ONE);
+			let dir = random_vec3_hemisphere(rec.normal);
+			return 0.5 * Self::ray_color(&Ray::new(rec.p, dir), world);
 		}
 
 		let unit_dir = ray.dir.normalize();
@@ -37,7 +38,7 @@ impl Camera {
 	}
 
 	fn sample_square() -> Vec2 {
-		vec2(random_float() - 0.5, random_float() - 0.5)
+		vec2(random_float(None) - 0.5, random_float(None) - 0.5)
 	}
 
 	fn get_ray(&self, i: u32, j: u32) -> Ray {
