@@ -23,7 +23,7 @@ fn random_unit_vec3() -> Vec3 {
 		let length_sq = vec.length().powi(2);
 
 		if length_sq <= 1_f32 && length_sq > f32::MIN {
-			return vec;
+			return vec.normalize();
 		}
 	}
 }
