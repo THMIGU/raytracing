@@ -17,7 +17,7 @@ fn random_vec3(range: Option<Range<f32>>) -> Vec3 {
 	vec3(random_float(range.clone()), random_float(range.clone()), random_float(range.clone()))
 }
 
-fn random_unit_vec3() -> Vec3 {
+pub fn random_unit_vec3() -> Vec3 {
 	loop {
 		let vec = random_vec3(Some(-1_f32..1_f32));
 		let length_sq = vec.length().powi(2);

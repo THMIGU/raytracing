@@ -5,7 +5,7 @@ use crate::{
 	hittable::{HitRecord, Hittable},
 	interval::Interval,
 	ray::Ray,
-	utils::{INFINITY, random_float, random_vec3_hemisphere},
+	utils::{INFINITY, random_float, random_unit_vec3, random_vec3_hemisphere},
 };
 
 pub struct Camera {
@@ -27,8 +27,8 @@ impl Camera {
 		}
 
 		let mut rec = HitRecord::new();
-		if world.hit(ray, Interval::new(0_f32, INFINITY), &mut rec) {
-			let dir = random_vec3_hemisphere(rec.normal);
+		if world.hit(ray, Interval::new(0.01, INFINITY), &mut rec) {
+			let dir = rec.normal + random_unit_vec3();
 			return 0.5 * Self::ray_color(&Ray::new(rec.p, dir), depth - 1, world);
 		}
 
