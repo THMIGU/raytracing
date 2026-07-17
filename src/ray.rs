@@ -17,3 +17,12 @@ impl Ray {
 		self.origin + self.dir * t
 	}
 }
+
+impl Default for Ray {
+	fn default() -> Self {
+		Self {
+			origin: Vec3::ZERO,
+			dir: Vec3::ZERO,
+		}
+	}
+}

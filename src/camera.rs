@@ -28,8 +28,16 @@ impl Camera {
 
 		let mut rec = HitRecord::new();
 		if world.hit(ray, Interval::new(0.01, INFINITY), &mut rec) {
-			let dir = rec.normal + random_unit_vec3();
-			return 0.5 * Self::ray_color(&Ray::new(rec.p, dir), depth - 1, world);
+			let mut scattered = Ray::default();
+			let mut attenuation = Color::ZERO;
+
+			if rec
+				.mat
+				.scatter(ray, &rec, &mut attenuation, &mut scattered)
+			{
+				return attenuation * Self::ray_color(&scattered, depth - 1, world);
+			}
+			return Color::ZERO;
 		}
 
 		let unit_dir = ray.dir.normalize();
