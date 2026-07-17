@@ -16,7 +16,7 @@ use crate::{
 	camera::Camera,
 	color::Color,
 	hittable_list::HittableList,
-	material::{Lambertian, Material, Metal},
+	material::{Lambertian, Metal},
 	sphere::Sphere,
 };
 

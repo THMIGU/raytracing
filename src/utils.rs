@@ -39,5 +39,5 @@ pub fn random_vec3_hemisphere(normal: Vec3) -> Vec3 {
 
 pub fn near_zero(v: Vec3) -> bool {
 	let s = 1e-8;
-	v.x > s && v.y > s && v.z > s
+	v.x.abs() < s && v.y.abs() < s && v.z.abs() < s
 }
