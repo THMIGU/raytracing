@@ -5,7 +5,7 @@ use crate::{
 	hittable::{HitRecord, Hittable},
 	interval::Interval,
 	ray::Ray,
-	utils::{INFINITY, random_float, random_unit_vec3, random_vec3_hemisphere},
+	utils::{INFINITY, random_float},
 };
 
 pub struct Camera {
