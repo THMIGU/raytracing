@@ -8,9 +8,9 @@ mod ray;
 mod sphere;
 mod utils;
 
-use std::rc::Rc;
+use std::{f32::consts::PI, rc::Rc};
 
-use glam::vec3;
+use glam::{Vec3, vec3};
 
 use crate::{
 	camera::Camera,
@@ -23,19 +23,14 @@ use crate::{
 fn main() {
 	let mut world = HittableList::new();
 
-	let mat_ground = Rc::new(Lambertian::new(Color::new(0.8, 0.8, 0_f32)));
-	let mat_center = Rc::new(Lambertian::new(Color::new(0.1, 0.2, 0.5)));
-	let mat_left = Rc::new(Dielectric::new(1.5));
-	let mat_bubble = Rc::new(Dielectric::new(1_f32 / 1.5));
-	let mat_right = Rc::new(Metal::new(Color::new(0.8, 0.6, 0.2), 1_f32));
+	let r = (PI / 4_f32).cos();
 
-	world.add(Sphere::new(vec3(0_f32, -100.5, -1_f32), 100_f32, mat_ground));
-	world.add(Sphere::new(vec3(0_f32, 0_f32, -1.2), 0.5, mat_center));
-	world.add(Sphere::new(vec3(-1_f32, 0.01_f32, -1_f32), 0.5, mat_left));
-	world.add(Sphere::new(vec3(-1_f32, 0.01_f32, -1_f32), 0.4, mat_bubble));
-	world.add(Sphere::new(vec3(1_f32, 0_f32, -1_f32), 0.5, mat_right));
+	let mat_left = Rc::new(Lambertian::new(Color::new(0_f32, 0_f32, 1_f32)));
+	let mat_right = Rc::new(Lambertian::new(Color::new(1_f32, 0_f32, 0_f32)));
 
-	let cam = Camera::new(16_f32 / 9_f32, 400, 128, 64);
+	world.add(Sphere::new(vec3(-r, 0_f32, -1_f32), r, mat_left));
+	world.add(Sphere::new(vec3(r, 0_f32, -1_f32), r, mat_right));
 
+	let cam = Camera::new(16_f32 / 9_f32, 400, 128, 64, 90_f32);
 	cam.render(&world);
 }

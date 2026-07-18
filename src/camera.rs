@@ -5,7 +5,7 @@ use crate::{
 	hittable::{HitRecord, Hittable},
 	interval::Interval,
 	ray::Ray,
-	utils::{INFINITY, random_float},
+	utils::{INFINITY, degrees_to_radians, random_float},
 };
 
 pub struct Camera {
@@ -13,6 +13,7 @@ pub struct Camera {
 	pub image_width: u32,
 	pub samples_per_pixel: u32,
 	pub max_depth: u32,
+	pub vfov: f32,
 	image_height: u32,
 	center: Vec3,
 	p00_loc: Vec3,
@@ -71,6 +72,7 @@ impl Camera {
 		image_width: u32,
 		samples_per_pixel: u32,
 		max_depth: u32,
+		vfov: f32,
 	) -> Self {
 		let mut image_height = (image_width as f32 / aspect_ratio) as u32;
 		if image_height < 1 {
@@ -80,8 +82,12 @@ impl Camera {
 		let camera_center = Vec3::ZERO;
 		let focal_length = 1_f32;
 
+		let theta = degrees_to_radians(vfov);
+		let h = (theta / 2_f32).tan();
+
+		let viewport_height = 2_f32 * h * focal_length;
+
 		let image_aspect = image_width as f32 / image_height as f32;
-		let viewport_height = 2_f32;
 		let viewport_width = viewport_height as f32 * image_aspect;
 
 		let viewport_u = vec3(viewport_width, 0_f32, 0_f32);
@@ -101,6 +107,7 @@ impl Camera {
 			image_width,
 			samples_per_pixel,
 			max_depth,
+			vfov,
 			image_height,
 			center: camera_center,
 			p00_loc,
